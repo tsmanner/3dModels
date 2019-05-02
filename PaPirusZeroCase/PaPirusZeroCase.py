@@ -17,7 +17,7 @@ bed = translate((0, 0, -2))(bed)
 
 model = union()(
     pizerow,
-    # bed,
+    bed,
 )
 
 
