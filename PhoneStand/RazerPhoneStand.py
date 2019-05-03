@@ -1,5 +1,6 @@
 import os
 from solid import *
+# from solidext import Point, rounded_cube
 from math import radians, cos, sin, tan
 
 
@@ -49,7 +50,28 @@ class Point(list):
         )
 
 
-def phone_stand(phone_length, phone_width, phone_thickness, lean_angle):
+def rounded_cube(size, corner_radius, segments=None, center=False):
+    if isinstance(size, (int, float)):
+        size = (
+            size - 2 * corner_radius,
+            size - 2 * corner_radius,
+            size - 2 * corner_radius,
+        )
+    else:
+        size = (
+            size[0] - 2 * corner_radius,
+            size[1] - 2 * corner_radius,
+            size[2] - 2 * corner_radius,
+        )
+    return translate((corner_radius, corner_radius, corner_radius))(
+        minkowski()(
+            cube(size),
+            sphere(corner_radius, segments=segments)
+        )
+    )
+
+
+def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowski_radius=None, minkowski_segments=None):
     theta = -lean_angle
     theta_rad = radians(theta)
 
@@ -97,33 +119,47 @@ def phone_stand(phone_length, phone_width, phone_thickness, lean_angle):
     )
 
     # Construct the Phone
-    phone = cube((
-        phone_thickness,
-        phone_length,
-        phone_width,
-    ))
+    if minkowski_radius is not None:
+        phone = rounded_cube((
+            phone_thickness,
+            phone_length,
+            phone_width,
+        ), 1, 32)
+    else:
+        phone = cube((
+            phone_thickness,
+            phone_length,
+            phone_width,
+        ))
     phone = rotate((0, theta, 0))(phone)
 
     thickness = 2
+    mkrad = 0.75
+    corner_segments = 32
 
     width = min(phone_length/2, phone_width)
     length = bf.x
-    stand_base = cube((length, width, thickness))
-    stand_base = translate(bb - Point(0, width/2, thickness))(stand_base)
+    stand_base = rounded_cube((length + 3 * mkrad, width, thickness), mkrad, corner_segments)
+    stand_base = translate(bb - Point(mkrad, width/2, thickness))(stand_base)
 
     width = 20
     length = max(-tb.x, 0)
-    stand_support = cube((length, width, thickness))
+    stand_support = rounded_cube((length + 2 * mkrad, width, thickness), mkrad, corner_segments)
     stand_support = translate(bb - Point(length, width/2, thickness))(stand_support)
 
     length = phone_width/2
-    stand_back = cube((thickness, width, length))
+    translate_point = Point(
+        thickness * cos(theta_rad) + mkrad * 2 * sin(theta_rad),
+        width/2,
+        -thickness * sin(theta_rad) + mkrad * 2 * cos(theta_rad)
+    )
+    stand_back = rounded_cube((thickness, width, length + 2 * mkrad), mkrad, corner_segments)
     stand_back = rotate((0, theta, 0))(stand_back)
-    stand_back = translate(bb - Point(thickness * cos(theta_rad), width/2, -thickness * sin(theta_rad)))(stand_back)
+    stand_back = translate(bb - translate_point)(stand_back)
 
     width = min(phone_length/2, phone_width)
     length = thickness + bf.z + 1
-    stand_front = cube((thickness, width, length))
+    stand_front = rounded_cube((thickness, width, length), mkrad, corner_segments)
     stand_front = translate(bb - Point(-bf.x, width/2, thickness))(stand_front)
 
     stand = union()(
@@ -144,6 +180,6 @@ filename = os.path.join(os.path.dirname(__file__), "PhoneStand.scad")
 
 
 scad_render_to_file(
-    phone_stand(158.5, 77.7, 8, 20),
+    phone_stand(158.5, 77.7, 8, 20, 1, 32),
     filename
 )
