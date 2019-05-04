@@ -1,74 +1,7 @@
 import os
 from solid import *
-# from solidext import Point, rounded_cube
+from solidext import Point, rounded_cube
 from math import radians, cos, sin, tan
-
-
-class Point(list):
-    def __init__(self, x, y, z):
-        super().__init__()
-        self.append(x)
-        self.append(y)
-        self.append(z)
-
-    @property
-    def x(self):
-        return self[0]
-
-    @x.setter
-    def x(self, value):
-        self[0] = value
-
-    @property
-    def y(self):
-        return self[1]
-
-    @y.setter
-    def y(self, value):
-        self[1] = value
-
-    @property
-    def z(self):
-        return self[2]
-
-    @z.setter
-    def z(self, value):
-        self[2] = value
-
-    def __add__(self, other):
-        return Point(
-            self.x + other.x,
-            self.y + other.y,
-            self.z + other.z,
-        )
-
-    def __sub__(self, other):
-        return Point(
-            self.x - other.x,
-            self.y - other.y,
-            self.z - other.z,
-        )
-
-
-def rounded_cube(size, corner_radius, segments=None, center=False):
-    if isinstance(size, (int, float)):
-        size = (
-            size - 2 * corner_radius,
-            size - 2 * corner_radius,
-            size - 2 * corner_radius,
-        )
-    else:
-        size = (
-            size[0] - 2 * corner_radius,
-            size[1] - 2 * corner_radius,
-            size[2] - 2 * corner_radius,
-        )
-    return translate((corner_radius, corner_radius, corner_radius))(
-        minkowski()(
-            cube(size),
-            sphere(corner_radius, segments=segments)
-        )
-    )
 
 
 def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowski_radius=None, minkowski_segments=None):
@@ -170,7 +103,7 @@ def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowsk
     )
 
     return union()(
-        # phone,
+        phone,
         # refs,
         stand,
     )
