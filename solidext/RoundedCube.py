@@ -26,11 +26,7 @@ def rounded_cube(size, corner_radius, segments=None, center=False):
 
     shapez = linear_extrude(size.z)(rounded_rectangle(XY(size.x, size.y), corner_radius.x, segments))
 
-    # shapey = translate((15, 0, 0))(shapey)
-    # shapez = translate((30, 0, 0))(shapez)
-
     rc = intersection()(
-    # rc = union()(
         shapex,
         shapey,
         shapez

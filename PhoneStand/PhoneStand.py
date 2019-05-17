@@ -1,10 +1,10 @@
 import os
 from solid import *
-from solidext import Point, rounded_cube
+from solidext import Point, rounded_cube, minkowski_rounded_cube
 from math import radians, cos, sin, tan
 
 
-def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowski_radius=None, minkowski_segments=None):
+def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, corner_radius=None, corner_segments=32):
     theta = -lean_angle
     theta_rad = radians(theta)
 
@@ -52,12 +52,12 @@ def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowsk
     )
 
     # Construct the Phone
-    if minkowski_radius is not None:
-        phone = rounded_cube((
+    if corner_radius is not None:
+        phone = minkowski_rounded_cube((
             phone_thickness,
             phone_length,
             phone_width,
-        ), 1, 32)
+        ), corner_radius, corner_segments)
     else:
         phone = cube((
             phone_thickness,
@@ -91,7 +91,7 @@ def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowsk
     stand_back = translate(bb - translate_point)(stand_back)
 
     width = min(phone_length/2, phone_width)
-    length = thickness + bf.z + 1
+    length = thickness + bf.z + 2
     stand_front = rounded_cube((thickness, width, length), mkrad, corner_segments)
     stand_front = translate(bb - Point(-bf.x, width/2, thickness))(stand_front)
 
@@ -109,10 +109,17 @@ def phone_stand(phone_length, phone_width, phone_thickness, lean_angle, minkowsk
     )
 
 
-filename = os.path.join(os.path.dirname(__file__), "PhoneStand.scad")
+def main():
+    filename = os.path.join(os.path.dirname(__file__), "PhoneStand.scad")
+    length = 158.5
+    width = 77.7
+    thickness = 8
+    lean_angle = 30
+    scad_render_to_file(
+        phone_stand(length, width, thickness, lean_angle, 1, 32),
+        filename
+    )
 
 
-scad_render_to_file(
-    phone_stand(158.5, 77.7, 8, 20, 1, 32),
-    filename
-)
+if __name__ == "__main__":
+    main()
